@@ -1,0 +1,25 @@
+.col-overflow::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #F5F5F5;
+}
+
+.col-overflow::-webkit-scrollbar
+
+{
+	height: 0px;
+	background-color: #ccc;
+}
+
+body .p-datatable .p-datatable-tbody > tr.p-highlight{
+    background-color: rgb(219, 216, 216) !important;
+    color: black !important;
+}
+
+.data-list-warehouse .p-datatable-header{
+    border: 0 none !important;
+    padding: 12px !important;
+    text-align: left !important;
+    font-size: 20px !important;
+    background-color: unset !important;
+}

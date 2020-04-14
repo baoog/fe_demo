@@ -1,0 +1,30 @@
+.layout-wrapper.layout-mobile-sidebar-active .layout-sidebar::-webkit-scrollbar-track,
+.layout-wrapper.layout-overlay.layout-overlay-sidebar-active .layout-sidebar::-webkit-scrollbar-track,
+.layout-sidebar.layout-sidebar-dark::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #F5F5F5;
+}
+
+.layout-wrapper.layout-mobile-sidebar-active .layout-sidebar::-webkit-scrollbar,
+.layout-wrapper.layout-overlay.layout-overlay-sidebar-active .layout-sidebar::-webkit-scrollbar,
+.layout-sidebar.layout-sidebar-dark::-webkit-scrollbar
+
+{
+	width: 5px;
+	background-color: #ccc;
+}
+
+.layout-wrapper.layout-mobile-sidebar-active .layout-sidebar::-webkit-scrollbar-thumb,
+.layout-wrapper.layout-overlay.layout-overlay-sidebar-active .layout-sidebar::-webkit-scrollbar-thumb,
+.layout-sidebar.layout-sidebar-dark::-webkit-scrollbar-thumb
+
+{
+	border-radius: 10px;
+	background-image: -webkit-gradient(linear,
+									   left bottom,
+									   left top,
+									   color-stop(0.44, rgba(77, 80, 91,.6)),
+									   color-stop(0.52, rgba(77,80,91,.8)),
+									   color-stop(0.66, rgba(77,80,91,1)));
+}
