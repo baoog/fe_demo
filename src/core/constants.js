@@ -14,6 +14,7 @@ export const orders_by_basket_id = '/order/any_by_basket_id';
 export const orders_by_basket_id_not_on_trip = '/order/any_by_basket_id_not_on_trip';
 export const orders_total = '/order/total';
 export const orders_size_by_status = '/order/size_by_status';
+export const orders_will_transit = '/order/will_transit';
 export const city_all = '/cities/all';
 export const districts_any = '/districts/any';
 export const wards_any = '/wards/any';
@@ -30,6 +31,9 @@ export const basket_remove = '/basket/remove_order';
 export const trip_self = '/trip/self'
 export const trip_total = '/trip/total'
 export const trip_any = '/trip/any'
+export const package_any = '/package/any'
+export const package_any_by_warehouse = '/package/any_by_warehouse'
+export const transit_any = '/transition/any'
 export const types = {
     LOGIN: "LOGIN",
     LOGIN_ERR: "LOGIN_ERR",
@@ -131,6 +135,16 @@ export const Route_ListOrders = [
     }
   ]
 
+  export const Route_CreateNewTransit = [
+    {
+      path:'transit',
+      breadcrumbName: 'Luân chuyển',
+    },
+    {
+      path: 'transit/create',
+      breadcrumbName: 'Khởi tạo luân chuyển',
+    }
+  ]
   export function showSuccess(title, mess,growl){
         if (growl != null)
             return growl.show({severity: 'success', summary: title, detail: mess} );

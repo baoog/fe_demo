@@ -10,7 +10,7 @@ import {InputText} from 'primereact/inputtext';
 import { isUndefined, isNullOrUndefined } from 'util';
 import {GetWarehouseById , GetAllWarehouse, UpdateArea} from '../../service/WarehouseService'
 import {GetListBaskets, AddToBasket, RemoveOrder, CreateBasket} from '../../service/BasketService'
-import {GetOrdersByBasketId, GetOrdersById} from '../../service/OrderService'
+import {GetOrdersByBasketId, GetOrdersById, GetOrdersWillTransit} from '../../service/OrderService'
 import {Dialog} from 'primereact/dialog';
 import {Chips} from 'primereact/chips';
 import {Dropdown} from 'primereact/dropdown';
@@ -19,6 +19,7 @@ import { GetDistrictByCityCode ,GetWards} from '../../service/AddressService'
 import { PickList } from 'primereact/picklist';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { CreateNewPackage, GetListPackage } from '../../service/PackageService';
 
 const routes = Const.Route_ManagementWarehouses
 const typeBasket = [
@@ -51,10 +52,13 @@ export class ManagementWarehousePage extends Component {
             selectedAreas:[],
 
             showDialogCreatePackage: false,
-            selectedOrders: []
+            selectedOrders: [],
+            listOrdersWillTransit:[],
+            loadingDialogPackage: false,
+            listPackages: []
         }
     }
-    searchWarehouse= ()=>{
+    searchWarehouse= async ()=>{
         if (!isNullOrUndefined(this.state.warehouseId)){
             this.setState(
                 {
@@ -62,14 +66,17 @@ export class ManagementWarehousePage extends Component {
                     classBtnVerify: "p-button-raised p-button-warning"
                 }
             )
-            GetWarehouseById(this.state.warehouseId).then(res =>{
-                this.setState({warehouse:res.data.data[0],selectedAreas: res.data.data[0].area},()=>{
-                    GetDistrictByCityCode(this.state.warehouse.address.district.cityCode,200).then(re=>{
-                        this.setState({listArea: re.data.data})
-                    })
-                    console.log("aa",this.state.selectedAreas)
+            await GetWarehouseById(this.state.warehouseId).then( async (res) => {
+                await this.setState({warehouse:res.data.data[0],selectedAreas: res.data.data[0].area})
+                await GetDistrictByCityCode(this.state.warehouse.address.district.cityCode,200).then(async re=>{
+                    await this.setState({listArea: re.data.data})
                 })
-                GetListBaskets(this.state.warehouseId).then(res =>{
+                await GetListPackage().then(res => {
+                    if (res.data.status == "OK"){
+                        this.setState({listPackages: res.data.data})
+                    }
+                })
+                await GetListBaskets(this.state.warehouseId).then(res =>{
                     this.setState({baskets: res.data.data})
                     }).then(()=>{
                         this.setState(
@@ -79,10 +86,6 @@ export class ManagementWarehousePage extends Component {
                             }
                         )
                     }).catch(err =>{
-                        if (!isUndefined(err.response))
-                            Const.showError(err.name,err.response.data.message,this.growl)
-                        else
-                            Const.showError(err.name,err.message,this.growl)
                             this.setState(
                                 {
                                     iconBtnVerify: "pi pi-fw pi-check",
@@ -297,14 +300,82 @@ export class ManagementWarehousePage extends Component {
         });
     }
     showCreatePackageDialog=()=>{
-        
+        this.setState({showDialogCreatePackage:true, loadingDialogPackage: true})
+        GetOrdersWillTransit(true).then(res=>{
+            this.setState({listOrdersWillTransit: res.data.data,loadingDialogPackage: false})
+        }).catch(err=>{
+            this.setState({listOrdersWillTransit: [],loadingDialogPackage: false})
+        })
     }
+    addressReceiver = (e)=>{
+        if (!isUndefined(e.rAddress)) {
+            var numb = !isUndefined(e.rAddress.number) ? e.rAddress.number+", " : ""
+            return (
+            numb+
+            e.rAddress.street.prefix+" "+e.rAddress.street.name+" "+
+            e.rAddress.ward.prefix+" "+e.rAddress.ward.name+", " +
+            e.rAddress.district.name+" "+
+            e.rAddress.city.name)
+        } else return " "
+
+    }
+
+
+    addressSender=(e)=>{
+        console.log("addres",e)
+        if (!isUndefined(e.sAddress)) {
+            var numb = !isUndefined(e.sAddress.number) ? e.sAddress.number+", " : ""
+            return (
+            numb+
+            e.sAddress.street.prefix+" "+e.sAddress.street.name+" "+
+            e.sAddress.ward.prefix+" "+e.sAddress.ward.name+", " +
+            e.sAddress.district.name+" "+
+            e.sAddress.city.name)
+        } else return " "
+    }
+
+    filterAddress=(e,key)=>{
+        if(e.search(key) !== -1 )
+        return e
+    }
+    handleSelectionChangeOrder = (e)=>{
+        this.setState({selectedOrders: e.value});
+    }
+    footerDialogCreatePackage(){
+     return (
+            <div>
+                <Button label="Tạo kiện hàng" icon="pi pi-plus" onClick={this.actionCreatePackage}/>
+            </div>
+        )
+    }
+
+    actionCreatePackage=()=>{
+        if(this.state.selectedOrders.length === 0){
+            Const.showError("Lỗi", "Bạn phải chọn đơn hàng", this.growl);
+            return;
+        }
+        var listIdOrders = []
+        this.state.selectedOrders.map(item => listIdOrders.push(item.id))
+        CreateNewPackage(listIdOrders).then(res=>{
+            if(res.data.status=="OK"){
+                this.setState({listPackages: [...this.state.listPackages,res.data.data[0]]})
+            }
+        }).then(() =>{
+            Const.showSuccess("Thành công", "Tạo kiện hàng thành công", this.growl)
+        }).catch(err =>{
+            if (!isUndefined(err.response))
+                Const.showError(err.name,err.response.data.message,this.growl)
+            else
+                Const.showError(err.name,err.message,this.growl) 
+        })
+    }
+
     render(){
         return(
             <div>
                 <Growl ref={(el) => this.growl= el} style={{borderRadius:'50px' }}/>
                 <PageHeader className="site-page-header" breadcrumb={{routes}}/>
-                <Card title="Quản lý kho">
+                <Card title="Quản lý kho" style={{paddingTop:"10px"}}>
                     <Form labelCol={{span: 5}}  wrapperCol={{ span: 14 }} style={{marginTop: 20}} >
                         <fieldset>
                             <legend>Tìm kiếm kho</legend>
@@ -312,7 +383,7 @@ export class ManagementWarehousePage extends Component {
                                 <Input.Group compact >
                                     <Form.Item onChange={this.handleInput}>
                                         <InputText style={{width: 250}}  placeholder="Mã kho" value={this.state.warehouseId ==""?null:this.state.warehouseId}
-                                        onInput={(e)=> this.setState({warehouseId: e.target.value})}/>
+                                        readOnly/>
                                     </Form.Item>
                                     <Form.Item style={{marginLeft: 25}}>
                                         <Button label="Verify" className={this.state.classBtnVerify} icon={this.state.iconBtnVerify} iconPos="left" onClick={this.searchWarehouse}/>
@@ -340,9 +411,9 @@ export class ManagementWarehousePage extends Component {
                         </fieldset>
                         <fieldset style={{paddingBottom: "20px"}}>
                             <legend>Khu vực quản lý nhận hàng</legend>
-                            {!isNullOrUndefined(this.state.listArea)&&!isNullOrUndefined(this.state.selectedAreas)? this.state.listArea.map( (item)=>
+                            {!isNullOrUndefined(this.state.listArea)&&!isNullOrUndefined(this.state.selectedAreas)? this.state.listArea.map( (item,i)=>
                                     <div style={{display:"inline-block", marginRight:"20px"}}><div style={{marginBottom:"13px"}}>
-                                        <Checkbox onChange={this.onAreaChange} id={item.id} value={item} key={item.id}
+                                        <Checkbox onChange={this.onAreaChange} id={item.id} value={item} key={i}
                                         checked={this.state.selectedAreas.findIndex(x=> x.name == item.name) !== -1}
                                    />
                                     <label htmlFor={item.id} className="p-checkbox-label">{item.name}</label>
@@ -364,14 +435,19 @@ export class ManagementWarehousePage extends Component {
                             <legend>
                                 Kiện hàng
                                 <Button style={{float: "right",marginRight:"20px"}} icon="pi pi-th-large" 
-                            className="p-button p-button-info" label="Tạo rỗ mới" onClick={this.showCreatePackageDialog}/>
+                            className="p-button p-button-info" label="Tạo kiện hàng" onClick={this.showCreatePackageDialog}/>
                             </legend>
+                            {!isNullOrUndefined(this.state.listPackages)? this.state.listPackages.map( (item)=>
+                                    <Button key={item.ID} label={item.code} icon="pi pi-th-large" onClick={()=> {return this.handleOnClick(item)}}
+                                    className="p-button-raised p-button-secondary" tooltip={`Status: ${item.status}`}
+                                    style={item.status ==="PACKAGE"? {border: "1px solid #000", marginRight:"10px"}: {border: "1px solid red", marginRight:"10px"} }/>
+                                ): ""}
                         </fieldset>
                     </Form>
                     : null}
                 </Card>
                 <Dialog header="Thông tin rỗ" visible={this.state.showDialogBasket} modal={true}
-                onHide={this.handleHide} style={{width: '50vw'}} blockScroll load>
+                onHide={this.handleHide} style={{width: '50vw'}} blockScroll>
                     {!isNullOrUndefined(this.state.selectedBasket) ? 
                     <div>
                     <Form labelCol={{span: 4}}  wrapperCol={{ span: 10 }}>
@@ -437,12 +513,18 @@ export class ManagementWarehousePage extends Component {
                         </fieldset>
                     </Form>
                 </Dialog>
-                <Dialog header="Tạo kiện hàng" visible={this.state.showDialogCreatePackage}
-                onHide={()=>this.setState({showDialogCreatePackage: false})}>
-                    <DataTable emptyMessage="Không có đơn hàng">
-                        <Column selectionMode="multi"/>
-                        <Column field="id" header="ID"/>
-                        <Column field="sAddress" header="Sender address"/>
+                <Dialog header="Tạo kiện hàng" visible={this.state.showDialogCreatePackage} style={{width: '50vw'}} modal={true}
+                onHide={()=>this.setState({showDialogCreatePackage: false})} footer={this.footerDialogCreatePackage()}>
+                    <DataTable emptyMessage="Không có đơn hàng" value={this.state.listOrdersWillTransit} selection={this.state.selectedOrders}
+                    loading={this.state.loadingDialogPackage} paginator={true} rows={10} responsive onSelectionChange={this.handleSelectionChangeOrder} >
+                        <Column selectionMode="multi" style={{width:45}}/>
+                        <Column body={e=>(<a href={`./#/order/management/${e.id}`}>{Const.shortenID(e.id)}</a>)} header="ID"/>
+
+                        <Column body={this.addressSender} filterPlaceholder="Địa chỉ gửi"
+                        header="Địa chỉ gủi" filter sortable filterMatchMode="custom" filterFunction={this.filterAddress}/>
+
+                        <Column body={this.addressReceiver} filterPlaceholder="Địa chỉ nhận"
+                        header="Địa chỉ nhận" filter sortable filterMatchMode="custom" filterFunction={this.filterAddress}/>
                     </DataTable>
                 </Dialog>
             </div> 

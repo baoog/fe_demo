@@ -48,7 +48,7 @@ export function GetOrdersByType(type, callBms){
             callBms: callBms,
             q:{
                 type:type,
-                warehouseId: Const.warehouse.id
+                warehouseId: warehouse.id
             }
         },
         headers:{
@@ -96,14 +96,14 @@ export function GetTotalOrders(){
 }
 
 export function GetTotalOrdersByStatus(status){
-    var warehouseId = status == "NEW" ? null : Const.warehouse.id;
+    var warehouse = JSON.parse(localStorage.getItem("warehouse"));
     return axios({
       url: Const.url_oms + Const.orders_size_by_status,
       method: "GET"  ,
       params:{
         q:{
             status: status,
-            warehouseId: warehouseId
+            warehouseId: warehouse.id
         }
       },
       headers:{
@@ -129,4 +129,22 @@ export function CancelOrder(order,desc){
           Authorization: `Bearer ${Const.token}`
       }
       })
+}
+
+export function GetOrdersWillTransit(callBms){
+    var warehouse = isNullOrUndefined(localStorage.getItem("warehouse")) ? {id:""} : JSON.parse(localStorage.getItem("warehouse"));
+    return axios({
+      url: Const.url_oms + Const.orders_will_transit,
+      method: "GET"  ,
+      params:{
+        q:{
+            warehouseId: warehouse.id,
+        },
+        callBms: callBms,
+        limit: 100
+      },
+      headers:{
+        Authorization: `Bearer ${Const.token}`
+    }
+    })
 }

@@ -31,6 +31,7 @@ import './layout/menu.css'
 import { HomePage } from './components/HomePage';
 import { CreateNewTrip } from './components/Trips/CreateNewTrip';
 import { ListTripPage } from './components/Trips/ListTrip';
+import { CreateNewTransit } from './components/Transitions/CreateNewTransit';
 
 var  growl = <Growl/>;
 class App extends Component {
@@ -164,10 +165,11 @@ class App extends Component {
                 ]
             },
             {
-                label: 'Nhân viên', icon: 'pi pi-fw pi-users',
+                label: 'Luân chuyển', icon: 'pi pi-fw pi-directions',
                 items: [
-                    {label: 'Danh sách nhân viên kho', icon: 'pi pi-fw pi-list', to: '/empty'},
-                    {label: 'Thêm nhân viên vào kho', icon: 'pi pi-fw pi-user-plus', to: '/empty'}
+                    {label: 'Tạo phiên luân chuyển', icon: 'pi pi-fw pi-plus', to: '/transit/create'},
+                    {label: 'Quản lý phiên luân chuyển', icon: 'pi pi-fw pi-cog', to: '/transit/management'},
+                    {label: 'Danh sách luân chuyển', icon: 'pi pi-fw pi-list', to: '/transit/list'},
                 ]
             },
             {
@@ -258,6 +260,7 @@ class App extends Component {
                     <Route path="/warehouse/management/:id" component={ManagementWarehousePage} />
                     <Route path="/trip/create" component={CreateNewTrip}/>
                     <Route path="/trip/list" component={ListTripPage}/>
+                    <Route path="/transit/create" component={CreateNewTransit}/>
                 </div>
 
                 <AppFooter />

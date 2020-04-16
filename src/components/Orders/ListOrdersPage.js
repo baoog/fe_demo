@@ -27,7 +27,7 @@ export class ListOrder extends Component {
         return(
             <div>
             <PageHeader className="site-page-header" breadcrumb={{routes}}/>
-            <Card title="Danh sách đơn hàng">
+            <Card title="Danh sách đơn hàng" style={{paddingTop:"10px"}}>
             <TabView activeIndex={this.state.activeIndex} onTabChange={(e) => this.setState({activeIndex: e.index})}>
                         <TabPanel header="Đơn hàng chưa xử lý">
                             <ItemOrderPending/>

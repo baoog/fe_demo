@@ -32,20 +32,21 @@ export class AppTopbar extends Component {
         })
     }
 
-    componentWillMount(){
-        this.handleGetData()
+    async componentWillMount(){
+        await this.handleGetData()
     }
     async handleGetData(){
         if(this.state.warehouses.length === 0){
-            await GetAllWarehouse(100,0).then((res)=> {
-                this.setState({warehouses: res.data.data},()=>{
+            await GetAllWarehouse(100,0).then( async (res)=> {
+                await this.setState({warehouses: res.data.data}, async ()=>{
                     if (this.state.selectedWarehouse == null ){
-                        if (isNullOrUndefined(Const.warehouse.id))
-                            this.setState({selectedWarehouse: this.state.warehouses[0]}, ()=>{
-                                localStorage.setItem("warehouse",JSON.stringify(this.state.selectedWarehouse))
+                        if (isNullOrUndefined(localStorage.getItem("warehouse"))){
+                            await this.setState({selectedWarehouse: this.state.warehouses[0]}, async ()=>{
+                                await localStorage.setItem("warehouse",JSON.stringify(this.state.selectedWarehouse))
                             })
+                        }
                         else
-                            this.setState({selectedWarehouse: Const.warehouse})
+                            await this.setState({selectedWarehouse: JSON.parse(localStorage.getItem("warehouse"))})
                     }
                 })                
             }).catch(err => console.log(err))
@@ -75,7 +76,7 @@ export class AppTopbar extends Component {
                     </div>
                     <div className="layout-topbar-icons" style={{marginRight:"80px"}}>
                         <span className="layout-topbar-search">
-                            <Dropdown options={this.state.warehouses} key="name" optionLabel="name" value={this.state.selectedWarehouse} placeholder="Kho" style={{width:100}}
+                            <Dropdown options={this.state.warehouses} key="id" optionLabel="name" value={this.state.selectedWarehouse} placeholder="Kho" style={{width:100}}
                             onChange={this.handleSelection}/>
                         </span>
                     </div>

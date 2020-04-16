@@ -79,7 +79,7 @@ export class OrderManagementPage extends Component{
             }
         })
     }
-    componentDidMount= ()=>{
+    async componentDidMount(){
         const {id} = this.props.match.params;
         this.setState(
             {
@@ -89,7 +89,7 @@ export class OrderManagementPage extends Component{
         )
         if(!isUndefined(id)){
             this.setState({orderId: id})
-            GetOrdersById(id,true).then(res=>{
+            await GetOrdersById(id,true).then(res=>{
                 console.log(res.data.data)
                 if (res.data.status === "OK"){
                     this.setState({order: res.data.data[0]})
@@ -133,7 +133,7 @@ export class OrderManagementPage extends Component{
             <div>
                 <Growl ref={(el) => this.growl= el} style={{borderRadius:'50px' }}/>
                 <PageHeader className="site-page-header" breadcrumb={{routes}}/>
-                <Card title="Quản lý đơn hàng">
+                <Card title="Quản lý đơn hàng" style={{paddingTop:"10px"}}>
                     <Form labelCol={{span: 5}}  wrapperCol={{ span: 14 }} style={{marginTop: 20}} onFinish={this.searchOrder}>
                         <fieldset>
                             <legend>Tìm kiếm đơn hàng</legend>

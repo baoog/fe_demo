@@ -108,7 +108,7 @@ export class CreateWarehouse extends Component {
             <div>
                 <Growl ref={(el) => this.growl= el} style={{borderRadius:'50px' }}/>
                 <PageHeader className="site-page-header" breadcrumb={{routes}}/>
-                <Card title="Tạo kho mới">
+                <Card title="Tạo kho mới" style={{paddingTop:"10px"}}>
                 <Form name="complex-form" labelCol={{ span: 4 }} style={{marginTop: 15}} 
                 wrapperCol={{ span: 16 }} onFinish={this.actionCreate}>
                     <Form.Item label="Tên kho *" >

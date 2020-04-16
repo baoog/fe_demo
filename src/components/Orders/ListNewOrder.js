@@ -38,8 +38,8 @@ export class ListNewOrder extends Component {
             showDialogCancel: false,
         }
     }
-    componentDidMount = ()=>{
-        GetOrdersByStatus(status, true).then(res=>{
+    async componentDidMount(){
+        await GetOrdersByStatus(status, true).then(res=>{
             console.log("bbbbbbbbbbbbbb",res.data)
             this.setState({orders:res.data.data,isLoading: false})
         }).catch(err=>{
@@ -191,6 +191,10 @@ export class ListNewOrder extends Component {
             Const.showError(err.name,err.message,this.growl)   
         })
     }
+    filterAddress=(e,key)=>{
+        if(e.search(key) !== -1 )
+        return e
+    }
     render(){
         const headerDataTableModal = this.renderHeader()
         const footerDialog = (
@@ -204,7 +208,7 @@ export class ListNewOrder extends Component {
             <div>
                 <Growl ref={(el) => this.growl = el} style={{borderRadius:'50px' }}/>
                 <PageHeader className="site-page-header" breadcrumb={{routes}}/>
-                    <Card title="List New Orders">
+                    <Card title="List New Orders" style={{paddingTop:"10px"}}>
                     <Button label="Import to warehouse" style={{float: "right",marginBottom:"15px",zIndex:'900'}} icon="pi pi-download" iconPos="left" className="p-button-info p-button-raised"
                          disabled={this.state.deactiveButton} onClick={this.handleImportToWareHouse}/>
                     <Button label="Auto import" style={{float: "right",marginBottom:"15px",zIndex:'900', marginRight:"10px"}} icon="pi pi-download" iconPos="left" className="p-button-success p-button-raised"
@@ -223,13 +227,13 @@ export class ListNewOrder extends Component {
                             className="col-overflow" sortable filter filterPlaceholder="Tên người gửi"/>
 
                             <Column field={this.addressSender} header="Địa chỉ gửi"  bodyStyle={{textAlign: 'center', overflow: 'visible'}}
-                            className="col-overflow" sortable filter filterPlaceholder="Địa chỉ gửi"/>
+                            className="col-overflow" sortable filter filterPlaceholder="Địa chỉ gửi" filterMatchMode="custom" filterFunction={this.filterAddress}/>
 
                             <Column field="rName" header="Người nhận" bodyStyle={{textAlign: 'center', overflow: 'auto',width:"2em"}} 
                             className="col-overflow" sortable filter filterPlaceholder="Tên người nhận"/>
 
                             <Column field={this.addressReceiver} header="Địa chỉ gửi"  bodyStyle={{textAlign: 'center', overflow: 'auto'}}
-                            className="col-overflow" sortable filter filterPlaceholder="Địa chỉ nhận"/>
+                            className="col-overflow" sortable filter filterPlaceholder="Địa chỉ nhận" filterMatchMode="custom" filterFunction={this.filterAddress}/>
 
                             <Column field="type" header="Type" bodyStyle={{textAlign: 'center', overflow: 'visible'}} />
 

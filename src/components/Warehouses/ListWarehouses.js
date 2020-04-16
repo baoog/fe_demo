@@ -126,7 +126,7 @@ export class ListWarehousesPage extends Component {
             <div>
                 <Growl ref={(el) => this.growl= el} style={{borderRadius:'50px' }}/>
                 <PageHeader className="site-page-header" breadcrumb={{routes}}/>
-                <Card title="Danh sách kho">
+                <Card title="Danh sách kho" style={{paddingTop:"10px"}}>
                     <DataTable value={this.state.warehouses} globalFilter={this.state.globalFilterWH} header={headerDataTableModal}
                         selection={this.state.selectionWH} onSelectionChange={e => this.setState({selectionWH: e.value})}
                         responsive className="data-list-warehouse" loading={this.state.isListWarehouseLoading}>
