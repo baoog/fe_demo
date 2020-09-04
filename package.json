@@ -23,7 +23,7 @@
         "primeicons": "^2.0.0",
         "primereact": "^4.1.1",
         "prop-types": "^15.7.2",
-        "quill": "1.3.3",
+        "quill": "1.3.7",
         "react": "^16.8.6",
         "react-app-polyfill": "^1.0.1",
         "react-dom": "^16.8.6",
